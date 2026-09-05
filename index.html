@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<script>document.documentElement.className = 'js is-locked';</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14100E">
+<!-- АНХААР: холбоосын урьдчилсан харагдац JS ажиллуулдаггүй тул эдгээр хоёр
+     мөрийг тараахаасаа өмнө ГАРААР бас солино. -->
+<title>Гэр барих · Онгодоо залах</title>
+<meta name="description" content="Гэр барих · Онгодоо залах — 2026.09.18">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;1,300&family=Onest:wght@300;400&display=swap">
+
+<style>
+/* ============================================================
+   ТОКЕН
+   Гэрийн дотор гэрэл ҮРГЭЛЖ хоёр эх үүсвэртэй байдаг:
+   дээрээс тооноор орох хүйтэн тэнгэрийн гэрэл,
+   доороос гал голомтын дулаан туяа. Палитр нь тэрнээс гарсан.
+   ============================================================ */
+:root{
+  /* Суурь — эсгий, утаа. Гүйлгэх тусам өдөр өнгөрч, орой болно. */
+  --felt:     #14100E;   /* хаялга хаалттай, үүрийн өмнөх гэр дотор */
+  --felt-lit: #1F1917;   /* хаялга сөхөгдөж, гэрэл орж ирэв */
+  --felt-day: #2A221D;   /* өдрийн гэрэл */
+  --felt-eve: #1A1310;   /* орой — гал голомт асав */
+
+  --sky:      #C9D8E6;   /* тооноор орох хүйтэн гэрэл */
+  --hearth:   #E07A3C;   /* гал голомт — ГЭРЭЛ, дулаан тал */
+  --ember:    #FFC98A;   /* голомтын хамгийн гэрэлт цэг */
+  --milk:     #F0EAE0;   /* сүү, эсгий — үндсэн текст */
+  --muted:    rgba(240,234,224,.72);
+
+  --font-display: 'Spectral', 'Times New Roman', Georgia, serif;
+  --font-ui: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --t-title: clamp(2.7rem, 14vw, 4.2rem);
+  --t-verse: clamp(1.02rem, 4.9vw, 1.25rem);
+  --t-body:  .95rem;
+  --t-label: .63rem;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --hair: .5px solid rgba(240,234,224,.15);
+  --radius: 4px;
+
+  --shell: 460px;
+  --pad: clamp(22px, 6.5vw, 34px);
+  --gap-section: clamp(76px, 19vw, 118px);
+}
+
+*, *::before, *::after{ box-sizing: border-box; }
+html{ -webkit-text-size-adjust: 100%; }
+
+body{
+  margin: 0;
+  min-height: 100svh;
+  background: var(--felt);
+  color: var(--milk);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-size: var(--t-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* html, body хоёуланд нь — зөвхөн body-д тавихад гүйлт үлддэг */
+.is-locked{ overflow: hidden; height: 100svh; }
+
+.shell{
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
+h1, h2, p, ul, ol{ margin: 0; }
+ul, ol{ padding: 0; list-style: none; }
+a{ color: inherit; }
+
+:focus-visible{ outline: 1px solid var(--ember); outline-offset: 3px; }
+
+.js .rv{ opacity: 0; }
+
+/* --- Типографи --- */
+.label{
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: var(--t-label);
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.title{
+  font-family: var(--font-display);
+  font-weight: 200;
+  font-size: var(--t-title);
+  letter-spacing: -.015em;
+  line-height: 1;
+}
+.verse{
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: var(--verse-size, var(--t-verse));
+  line-height: 1.9;
+}
+
+/* ============================================================
+   ГЭРИЙН ДОТОР — тогтмол дэвсгэр
+   Тооно голд, унь нь дэлгэцийн ирмэгээс гарч цааш үргэлжилнэ.
+   Уншиж буй хүн гэрийн ДОТОР байна.
+   ============================================================ */
+.ger{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ger svg{ width: 100%; height: 100%; display: block; }
+.ger .uni,
+.ger .ring,
+.ger .kharaatsai{
+  fill: none;
+  stroke: var(--milk);
+  stroke-linecap: round;
+}
+.ger .uni{ stroke-width: 1.1; opacity: .13; }
+.ger .ring{ stroke-width: 1.6; opacity: .30; }
+.ger .kharaatsai{ stroke-width: 1.3; opacity: .24; }
+
+/* Тооноор орох гэрэл */
+.ger .light{ opacity: .55; }
+
+/* Тооноор орсон гэрлийн толбо. Гүйлгэх тусам гэрийн шалан дээгүүр нүүнэ —
+   монголчууд яг үүгээр цаг заадаг байсан. */
+.sunspot{
+  position: fixed;
+  top: 0; left: 0;
+  width: 78vw; height: 78vw;
+  max-width: 460px; max-height: 460px;
+  margin: -39vw 0 0 -39vw;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle,
+      rgba(201,216,230,.20) 0%,
+      rgba(201,216,230,.07) 40%,
+      transparent 72%);
+}
+
+/* Гал голомт — хуудасны хамгийн доод талд, төгсгөлд бадарна */
+.hearth{
+  position: fixed;
+  left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  width: min(160vw, 900px);
+  height: 46svh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  /* Цөмийг доод ирмэгээс арай дээш — 100% дээр байвал гэрлийн ихэнх нь
+     дэлгэцээс доош унаад бараг мэдэгдэхгүй болно. */
+  background: radial-gradient(ellipse 46% 60% at 50% 97%,
+      rgba(255,201,138,.72) 0%,
+      rgba(255,201,138,.34) 20%,
+      rgba(224,122,60,.12) 44%,
+      transparent 72%);
+}
+
+main{ position: relative; z-index: 1; }
+
+/* ============================================================
+   СЕКШН
+   ============================================================ */
+.section{ padding-block: var(--gap-section); }
+.sec__label{ display: block; margin-bottom: 30px; }
+
+.seam{
+  height: 1px; border: 0; margin: 0;
+  background: radial-gradient(ellipse 60% 100% at 50% 50%,
+      rgba(240,234,224,.20) 0%, transparent 75%);
+  transform: scaleX(.6);
+  transform-origin: 50% 50%;
+}
+
+/* --- Hero --- */
+/* Текст тооны доор. Дээд тал нь тэнгэрт үлдэнэ. */
+#hero{
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-block: clamp(300px, 44svh, 420px) clamp(56px, 12svh, 96px);
+}
+.hero__above{ display: block; margin-bottom: 20px; }
+.hero__title{ position: relative; display: block; }
+.title__letters{ display: inline-block; white-space: nowrap; }
+.title__letters span{ display: inline-block; }
+.hero__below{ margin-top: 22px; color: var(--muted); max-width: 26ch; text-wrap: balance; }
+
+.hero__when{ margin-top: 46px; display: flex; align-items: center; gap: 16px; }
+.hero__rule{ flex: 1; height: 0; border-top: var(--hair); }
+.hero__date{ margin-top: 16px; font-family: var(--font-display); font-weight: 300; font-size: var(--t-verse); }
+.hero__hour{ color: var(--muted); margin-top: 2px; }
+
+/* --- Юу болох вэ --- */
+.about p + p{ margin-top: 14px; }
+.about p{ color: var(--muted); }
+.about p:first-child{ color: var(--milk); }
+
+/* --- Хэзээ, хаана --- */
+.wh__place{ font-family: var(--font-display); font-weight: 300; font-size: var(--t-verse); }
+.wh__note{ color: var(--muted); margin-top: 8px; }
+.wh__cta{
+  display: inline-block;
+  margin-top: 28px;
+  padding: 13px 26px;
+  border: var(--hair);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: var(--t-label);
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  transition: color .5s var(--ease), border-color .5s var(--ease);
+}
+.wh__cta:hover, .wh__cta:focus-visible{
+  color: var(--ember);
+  border-color: rgba(255,201,138,.5);
+}
+
+/* --- Ирэхдээ --- */
+.bring li{
+  padding-block: 20px;
+  border-bottom: var(--hair);
+  display: flex;
+  gap: 16px;
+}
+.bring li:last-child{ border-bottom: 0; }
+.bring .dot{
+  flex: 0 0 auto;
+  width: 4px; height: 4px;
+  margin-top: 12px;
+  border-radius: 50%;
+  background: var(--ember);
+  opacity: .8;
+}
+
+/* --- Ирэхээ хэлээрэй --- */
+.reply__note{ color: var(--muted); margin-top: 12px; }
+.reply__tel{
+  display: inline-block;
+  margin-top: 26px;
+  padding: 13px 26px;
+  border: var(--hair);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: var(--t-label);
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  transition: color .5s var(--ease), border-color .5s var(--ease);
+}
+.reply__tel:hover, .reply__tel:focus-visible{
+  color: var(--ember);
+  border-color: rgba(255,201,138,.5);
+}
+
+/* --- Төгсгөл --- */
+#closing{
+  min-height: 74svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  padding-bottom: clamp(140px, 30vh, 220px);
+}
+.cl__sign{ display: block; margin-top: 26px; }
+
+/* ============================================================
+   НЭЭХ ДЭЛГЭЦ — ХАЯЛГА СӨХӨХ
+   ============================================================ */
+#open{
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  cursor: pointer;
+  /* Бүрэн дүүргэхгүй — доогуур нь тооно бүдгээр мэдэгдэнэ. Эс тэгвэл
+     хаялга юуг таглаж байгаа нь ойлгогдохгүй, зүгээр хар дөрвөлжин болно. */
+  background: rgba(20,16,14,.86);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+#open[hidden]{ display: none; }
+
+/* Хаялга — тооног таглаж буй эсгий. Тооноос арай том, бага зэрэг эргэсэн. */
+.op__stage{ position: absolute; inset: 0; }
+.op__stage svg{ width: 100%; height: 100%; display: block; }
+.flap{ fill: #0D0A09; stroke: rgba(240,234,224,.16); stroke-width: 1.2; }
+
+/* Хаялганы захаар нэвчих нимгэн гэрэл — сөхөхөөс өмнөх ганц дохио */
+.op__crack{
+  position: absolute;
+  top: 0; left: 0;
+  width: 300px; height: 300px;
+  margin: -150px 0 0 -150px;
+  pointer-events: none;
+  background: radial-gradient(circle,
+      rgba(201,216,230,.30) 0%,
+      rgba(201,216,230,.08) 38%,
+      transparent 70%);
+}
+
+.op__foot{
+  position: absolute;
+  left: 50%;
+  bottom: clamp(58px, 12svh, 110px);
+  transform: translateX(-50%);
+  width: min(88vw, 400px);
+  text-align: center;
+}
+.op__line{
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 1.02rem;
+  color: rgba(240,234,224,.75);
+}
+.op__hint{ display: block; margin-top: 20px; }
+
+/* Гэрэлд уусах хөшиг */
+.op__veil{
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--vx,50%) var(--vy,34%),
+      rgba(233,242,250,.95) 0%,
+      rgba(201,216,230,.5) 26%,
+      rgba(201,216,230,.12) 52%,
+      transparent 74%);
+}
+
+/* ============================================================
+   ХӨДӨЛГӨӨН УНТРААХ
+   ============================================================ */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  #open{ display: none !important; }
+  .is-locked{ overflow: auto; height: auto; }
+}
+</style>
+</head>
+
+<body class="is-locked">
+
+<!-- Гэрийн дотор — тогтмол дэвсгэр -->
+<div class="ger" id="ger" aria-hidden="true"></div>
+<div class="sunspot" id="sunspot" aria-hidden="true"></div>
+<div class="hearth" id="hearth" aria-hidden="true"></div>
+
+<!-- Нээх дэлгэц -->
+<div id="open" role="button" tabindex="0" aria-label="Урилгыг нээх">
+  <div class="op__stage" id="op-stage"></div>
+  <div class="op__crack" id="op-crack"></div>
+  <div class="op__veil"  id="op-veil"></div>
+  <div class="op__foot">
+    <p class="op__line" id="op-line"></p>
+    <span class="label op__hint" id="op-hint"></span>
+  </div>
+</div>
+
+<main>
+  <section id="hero" class="section shell"></section>
+  <hr class="seam">
+  <section id="about" class="section shell"></section>
+  <hr class="seam">
+  <section id="when" class="section shell"></section>
+  <hr class="seam">
+  <section id="bring" class="section shell"></section>
+  <hr class="seam">
+  <section id="reply" class="section shell"></section>
+  <hr class="seam">
+  <section id="closing" class="section shell"></section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+/* ============================================================
+   CONFIG — хуудасны БҮХ текст энд.
+   ⟨ ⟩ хаалттай мөрүүд нь дүүргэх ёстой хоосон зай.
+   ============================================================ */
+const CONFIG = {
+
+  event: {
+    above: 'ГЭР БАРИХ',
+    title: 'Онгодоо залах',
+    below: 'Шинэ гэрээ босгож, эдлэл хэрэгслээ оруулж байна.'
+  },
+
+  date: {
+    iso:     '2026-09-18T11:00:00+08:00',
+    display: '2026.09.18',
+    weekday: 'Баасан гараг',
+    hour:    '⟨цагаа бичнэ үү⟩'
+  },
+
+  venue: {
+    place: '⟨байршлаа бичнэ үү⟩',
+    note:  '',
+    mapsUrl: null,
+    mapsQuery: '',
+    cta: 'Замаа харах'
+  },
+
+  opening: {
+    line: 'Тооноор гэрэл бууж ирнэ',
+    hint: 'ХАЯЛГЫГ СӨХ'
+  },
+
+  /* Энгийн найзууддаа зориулсан хэсэг. Онгод тэнгэртэй хүн мэднэ,
+     мэдэхгүй хүн асуухаас эмээдэг — тиймээс энд бичигдсэн байх ёстой. */
+  about: {
+    label: 'ЮУ БОЛОХ ВЭ',
+    lines: [
+      'Шинэ гэрээ босгож, онгодоо залах өдөр.',
+      'Хэдхэн ойрын хүн цуглана.',
+      'Зан үйлийн дараа хамт цайлж, хооллоно.'
+    ]
+  },
+
+  when: { label: 'ХЭЗЭЭ, ХААНА' },
+
+  bring: {
+    label: 'ИРЭХДЭЭ',
+    items: [
+      'Сүүтэй ирээрэй.'
+    ]
+  },
+
+  reply: {
+    label: 'ИРЭХЭЭ ХЭЛЭЭРЭЙ',
+    note:  'Найман хүнийг урьж байна. Ирэх эсэхээ надад хэлээрэй.',
+    tel:   null,              // '99001122' гэж бичвэл залгах товч гарна
+    telLabel: 'Утсаар хэлэх'
+  },
+
+  closing: {
+    line:      'Гал голомт бадартугай.',
+    signature: '⟨нэрээ бичнэ үү⟩'
+  },
+
+  /* Гэрийн дүрслэл */
+  ger: {
+    uni: 48,          // унины тоо
+    petals: 3,        // хараацайн хос нумын тоо (3 = 6 нум)
+    /* Тооно дээд талд. Текст түүний доор амьдарна — гэр дотор сууж
+       дээшээ хараад, дараа нь урилга руугаа харж буй өнцөг. */
+    cx: 500, cy: 215
+  }
+};
+
+document.title = CONFIG.event.above + ' · ' + CONFIG.event.title;
+const metaDesc = document.querySelector('meta[name="description"]');
+if (metaDesc) metaDesc.content = [CONFIG.event.above, CONFIG.event.title, CONFIG.date.display].join(' · ');
+
+CONFIG.venue.href = CONFIG.venue.mapsUrl
+  || (CONFIG.venue.mapsQuery
+      ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.venue.mapsQuery)
+      : null);
+
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+scrollTo(0, 0);
+
+const HAS_GSAP = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
+const REDUCED  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ANIMATED = HAS_GSAP && !REDUCED;
+if (HAS_GSAP) gsap.registerPlugin(ScrollTrigger);
+
+
+/* ============================================================
+   ТООНО — доороос дээш харсан өнцөг
+   Тойрог (тооны хүрээ), хараацай (дотор нь огтлолцсон нумууд),
+   унь (хүрээнээс гадагш, дэлгэцээс давж цааш).
+   ============================================================ */
+function drawGer(){
+  const G = CONFIG.ger;
+  const R = 150;                    // тооны гадна радиус
+  const cx = G.cx, cy = G.cy;
+  const P = n => n.toFixed(2);
+
+  /* Унь — хүрээнээс гадагш. Дэлгэцээс хол давахаар урт. */
+  let uni = '';
+  for (let i = 0; i < G.uni; i++){
+    const a = (i / G.uni) * Math.PI * 2;
+    const x1 = cx + Math.cos(a) * (R + 4),  y1 = cy + Math.sin(a) * (R + 4);
+    const x2 = cx + Math.cos(a) * 1500,     y2 = cy + Math.sin(a) * 1500;
+    uni += `<line class="uni" x1="${P(x1)}" y1="${P(y1)}" x2="${P(x2)}" y2="${P(y2)}"/>`;
+  }
+
+  /* Хараацай — хүрээний нэг захаас нөгөө зах хүртэл нуман мод.
+     Хос болгон дээш, доош бөхийж, эргүүлснээр сарнай хэлбэр үүснэ. */
+  let kh = '';
+  const r = R - 12;
+  for (let i = 0; i < G.petals; i++){
+    const rot = (180 / G.petals) * i;
+    kh += `<g transform="rotate(${P(rot)} ${cx} ${cy})">
+             <path class="kharaatsai" d="M ${cx - r} ${cy} Q ${cx} ${cy - r * .62} ${cx + r} ${cy}"/>
+             <path class="kharaatsai" d="M ${cx - r} ${cy} Q ${cx} ${cy + r * .62} ${cx + r} ${cy}"/>
+           </g>`;
+  }
+
+  document.getElementById('ger').innerHTML =
+    `<svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+       <defs>
+         <radialGradient id="toonoLight">
+           <stop offset="0%"   stop-color="#E9F2FA" stop-opacity=".26"/>
+           <stop offset="42%"  stop-color="#C9D8E6" stop-opacity=".08"/>
+           <stop offset="100%" stop-color="#C9D8E6" stop-opacity="0"/>
+         </radialGradient>
+       </defs>
+       <g>${uni}</g>
+       <circle class="light" cx="${cx}" cy="${cy}" r="${R * 1.9}" fill="url(#toonoLight)"/>
+       ${kh}
+       <circle class="ring" cx="${cx}" cy="${cy}" r="${R}"/>
+       <circle class="ring" cx="${cx}" cy="${cy}" r="${R - 11}"/>
+     </svg>`;
+}
+drawGer();
+
+
+/* ============================================================
+   ХУУДАСНЫ АГУУЛГА — CONFIG-оос
+   ============================================================ */
+const PAGE = (function(){
+  const E = CONFIG.event;
+
+  /* --- Hero --- */
+  const hero = document.getElementById('hero');
+  const split = [...E.title].map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
+  hero.setAttribute('aria-label', E.above + ' — ' + E.title);
+  hero.innerHTML =
+    `<p class="label hero__above rv">${E.above}</p>
+     <h1 class="title hero__title" aria-label="${E.title}">
+       <span class="title__letters" aria-hidden="true">${split}</span>
+     </h1>
+     <p class="hero__below rv">${E.below}</p>
+     <div class="hero__when rv">
+       <span class="label">${CONFIG.date.weekday}</span>
+       <i class="hero__rule"></i>
+     </div>
+     <div class="rv">
+       <p class="hero__date">${CONFIG.date.display}</p>
+       <p class="hero__hour">${CONFIG.date.hour}</p>
+     </div>`;
+
+  const letters = hero.querySelectorAll('.title__letters span');
+  const h1   = hero.querySelector('.hero__title');
+  const host = hero.querySelector('.title__letters');
+
+  /* Гарчиг баганад багтахгүй бол өөрөө багасна */
+  function fit(){
+    h1.style.fontSize = '';
+    const avail = h1.clientWidth;
+    const natural = host.getBoundingClientRect().width;
+    if (natural > avail && avail > 0){
+      const cur = parseFloat(getComputedStyle(h1).fontSize);
+      h1.style.fontSize = (cur * (avail / natural) * .995).toFixed(2) + 'px';
+    }
+  }
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  let fitTimer;
+  addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fit, 120); });
+
+  /* --- Юу болох вэ --- */
+  document.getElementById('about').innerHTML =
+    `<span class="label sec__label rv">${CONFIG.about.label}</span>
+     <div class="about rv">${CONFIG.about.lines.map(l => `<p>${l}</p>`).join('')}</div>`;
+
+  /* --- Хэзээ, хаана --- */
+  const V = CONFIG.venue;
+  document.getElementById('when').innerHTML =
+    `<span class="label sec__label rv">${CONFIG.when.label}</span>
+     <p class="wh__place rv">${V.place}</p>
+     <p class="wh__note rv">${CONFIG.date.display} · ${CONFIG.date.weekday} · ${CONFIG.date.hour}</p>
+     ${V.note ? `<p class="wh__note rv">${V.note}</p>` : ''}
+     ${V.href ? `<a class="wh__cta rv" href="${V.href}" target="_blank" rel="noopener noreferrer">${V.cta}</a>` : ''}`;
+
+  /* --- Ирэхдээ --- */
+  document.getElementById('bring').innerHTML =
+    `<span class="label sec__label rv">${CONFIG.bring.label}</span>
+     <ul class="bring rv">
+       ${CONFIG.bring.items.map(t => `<li><i class="dot" aria-hidden="true"></i><span>${t}</span></li>`).join('')}
+     </ul>`;
+
+  /* --- Ирэхээ хэлээрэй --- */
+  const RP = CONFIG.reply;
+  document.getElementById('reply').innerHTML =
+    `<span class="label sec__label rv">${RP.label}</span>
+     <p class="reply__note rv">${RP.note}</p>
+     ${RP.tel ? `<a class="reply__tel rv" href="tel:${RP.tel}">${RP.telLabel}</a>` : ''}`;
+
+  /* --- Төгсгөл --- */
+  document.getElementById('closing').innerHTML =
+    `<p class="verse rv">${CONFIG.closing.line}</p>
+     <span class="label cl__sign rv">${CONFIG.closing.signature}</span>`;
+
+  if (ANIMATED) gsap.set(letters, { opacity: 0, y: 24, filter: 'blur(8px)' });
+
+  function enter(animated){
+    if (!animated){
+      document.querySelectorAll('.rv').forEach(n => { n.style.opacity = 1; });
+      if (HAS_GSAP) gsap.set(letters, { opacity: 1, y: 0, filter: 'none' });
+      return;
+    }
+    const tl = gsap.timeline();
+    gsap.set(letters, { willChange: 'transform, filter, opacity' });
+    tl.to(letters, {
+      opacity: 1, y: 0, filter: 'blur(0px)',
+      duration: 1.2, ease: 'power4.out', stagger: .07,
+      onComplete(){ gsap.set(letters, { willChange: 'auto', filter: 'none' }); }
+    }, 0);
+    tl.fromTo(hero.querySelectorAll('.rv'),
+      { opacity: 0, y: 24, filter: 'blur(8px)' },
+      { opacity: 1, y: 0, filter: 'blur(0px)',
+        duration: 1.2, ease: 'power4.out', stagger: .12,
+        onComplete(){ gsap.set(hero.querySelectorAll('.rv'), { filter: 'none' }); } }, .25);
+    return tl;
+  }
+
+  return { enter };
+})();
+
+
+/* ============================================================
+   ГҮЙЛГЭХ — гэрлийн толбо нүүх, өдөр өнгөрөх, гал асах
+   ============================================================ */
+function initScroll(){
+  if (!ANIMATED){
+    document.querySelectorAll('.rv').forEach(n => { n.style.opacity = 1; });
+    document.querySelectorAll('.seam').forEach(n => { n.style.transform = 'scaleX(1)'; });
+    document.getElementById('sunspot').style.opacity = .8;
+    document.getElementById('hearth').style.opacity = .7;
+    return;
+  }
+
+  const cs = getComputedStyle(document.documentElement);
+  const c = v => cs.getPropertyValue(v).trim();
+
+  /* Гэр дотрын гэрэл өдрийн турш өөрчлөгдөнө */
+  const bg = gsap.timeline({
+    scrollTrigger: { trigger: document.documentElement, start: 'top top', end: 'bottom bottom', scrub: 1 }
+  });
+  bg.to(document.body, { backgroundColor: c('--felt-day'), ease: 'none', duration: 1 })
+    .to(document.body, { backgroundColor: c('--felt-eve'), ease: 'none', duration: 1 });
+
+  /* Тооноор орсон толбо гэрийн шалан дээгүүр нүүнэ.
+     Дээд талд зүүн дээр, доод талд баруун доор — нар шиг. */
+  const spot = document.getElementById('sunspot');
+  gsap.set(spot, { x: innerWidth * .26, y: innerHeight * .30, opacity: 0 });
+  gsap.to(spot, { opacity: .9, duration: 1.6, ease: 'power2.out' });
+  gsap.to(spot, {
+    x: innerWidth * .78, y: innerHeight * .74, ease: 'none',
+    scrollTrigger: { trigger: document.documentElement, start: 'top top', end: 'bottom bottom', scrub: 1.2 }
+  });
+
+  /* Тооно эхний дэлгэцээс доош ухарна. Гэрт байгаа хэвээр, гэхдээ
+     доод секшнүүдийн текстийг дарахгүй. */
+  gsap.to('#ger', {
+    opacity: .34, ease: 'none',
+    scrollTrigger: { trigger: document.documentElement, start: 'top top', end: '75% top', scrub: .8 }
+  });
+
+  /* Нар жаргаж, гал асна. Хоёулаа зэрэг гэрэлтвэл аль аль нь утгаа алдана. */
+  /* fromTo + immediateRender:false — эхлэх, дуусах утга хоёуланг нь тодорхой
+     зааж өгнө. Ердийн `to` нь орох tween-тэй мөргөлдөж эхлэх утгаа алдаж байв. */
+  gsap.fromTo(spot, { opacity: .9 }, {
+    opacity: 0, ease: 'none', immediateRender: false,
+    scrollTrigger: { trigger: '#closing', start: 'top 95%', end: 'top 35%', scrub: .8 }
+  });
+
+  /* Гал голомт — зөвхөн төгсгөлд бадарна */
+  gsap.fromTo('#hearth', { opacity: 0 }, {
+    opacity: 1, ease: 'none',
+    scrollTrigger: { trigger: '#closing', start: 'top 90%', end: 'bottom bottom', scrub: .8 }
+  });
+
+  gsap.utils.toArray('.seam').forEach(s => {
+    gsap.fromTo(s, { scaleX: .6 }, {
+      scaleX: 1, ease: 'none',
+      scrollTrigger: { trigger: s, start: 'top 94%', end: 'top 64%', scrub: .6 }
+    });
+  });
+
+  gsap.utils.toArray('main .section').forEach(sec => {
+    if (sec.id === 'hero') return;
+    const items = sec.querySelectorAll('.rv');
+    if (!items.length) return;
+    gsap.fromTo(items,
+      { opacity: 0, y: 24, filter: 'blur(8px)' },
+      { opacity: 1, y: 0, filter: 'blur(0px)',
+        duration: 1.2, ease: 'power4.out', stagger: .12,
+        scrollTrigger: { trigger: sec, start: 'top 80%', once: true },
+        onComplete(){ gsap.set(items, { filter: 'none' }); } });
+  });
+}
+
+
+/* ============================================================
+   НЭЭХ ДЭЛГЭЦ — ХАЯЛГА СӨХӨХ
+   Өглөө гэрээ нээж байгаа яг тэр хөдөлгөөн.
+   ============================================================ */
+(function opening(){
+  const openEl = document.getElementById('open');
+  /* Хоёр тусдаа туг. Нэгийг нь давхар үүрэгт ашиглавал хожим будлина.
+     Заавал энд зарлана — доор зарлавал хөдөлгөөнгүй горимын эрт буцалт
+     TDZ-д унаж, хуудас хоосон үлдэнэ. */
+  let opening = false;   // нээх анимейшн эхэлсэн үү
+  let entered = false;   // урилга асаагдсан уу
+
+  const LIT = getComputedStyle(document.documentElement).getPropertyValue('--felt-lit').trim();
+
+  document.getElementById('op-line').textContent = CONFIG.opening.line;
+  const hintEl = document.getElementById('op-hint');
+  if (CONFIG.opening.hint) hintEl.textContent = CONFIG.opening.hint;
+  else hintEl.remove();
+
+  if (REDUCED || !HAS_GSAP){
+    openEl.hidden = true;
+    document.body.style.backgroundColor = LIT;
+    unlock();
+    return;
+  }
+
+  /* Хаялга — тооног таглаж буй эсгий. Тооноос том, бага зэрэг эргэсэн,
+     нэг зах нь онгорхой тул тэндүүр гэрэл нэвчинэ. */
+  const G = CONFIG.ger, cx = G.cx, cy = G.cy, S = 210;
+  document.getElementById('op-stage').innerHTML =
+    `<svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+       <g id="flap-g" transform="rotate(-7 ${cx} ${cy})">
+         <path class="flap" d="M ${cx - S} ${cy - S - 26}
+                               L ${cx + S} ${cy - S + 10}
+                               L ${cx + S - 14} ${cy + S}
+                               L ${cx - S + 8} ${cy + S - 22} Z"/>
+       </g>
+     </svg>`;
+
+  const flap = document.getElementById('flap-g');
+
+  /* Хаялганы онгорхой захад нэвчих гэрэл — сөхөхийн өмнөх ганц дохио */
+  const crack = document.getElementById('op-crack');
+  function crackPos(){
+    const svg = openEl.querySelector('.op__stage svg');
+    if (!svg) return;
+    const b = svg.getBoundingClientRect();
+    /* viewBox slice-ийн масштабыг тооцно */
+    const sc = Math.max(b.width / 1000, b.height / 1000);
+    const ox = b.left + (b.width - 1000 * sc) / 2;
+    const oy = b.top  + (b.height - 1000 * sc) / 2;
+    gsap.set(crack, { x: ox + (cx + S - 30) * sc, y: oy + (cy - S + 30) * sc });
+    return { ox, oy, sc };
+  }
+  crackPos();
+  addEventListener('resize', crackPos);
+
+  gsap.fromTo(crack, { opacity: .5 }, { opacity: 1, duration: 3, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+
+  function open(){
+    if (opening) return;
+    opening = true;
+    openEl.style.cursor = 'default';
+
+    const geo = crackPos() || { ox: 0, oy: 0, sc: 1 };
+    const veil = document.getElementById('op-veil');
+    veil.style.setProperty('--vx', ((geo.ox + cx * geo.sc) / innerWidth  * 100).toFixed(1) + '%');
+    veil.style.setProperty('--vy', ((geo.oy + cy * geo.sc) / innerHeight * 100).toFixed(1) + '%');
+
+    gsap.killTweensOf(crack);
+
+    const tl = gsap.timeline({ onComplete: finish });
+
+    /* 0.00 — хаялга бага зэрэг чангарна */
+    tl.to(flap, { rotation: -10, transformOrigin: `${cx}px ${cy}px`, duration: .22, ease: 'power2.in' }, 0);
+
+    /* 0.22 — сөхөгдөж, зүүн дээш хальтарна */
+    tl.to(flap, {
+      x: -560, y: -420, rotation: -34,
+      transformOrigin: `${cx}px ${cy}px`,
+      duration: 1.5, ease: 'power3.inOut'
+    }, .22);
+
+    /* Гэрэл тооноор цутгаж орно */
+    tl.to(crack, { opacity: 0, duration: .4, ease: 'power2.out' }, .22)
+      .to(veil, { opacity: .88, duration: .8, ease: 'power2.out' }, .5)
+      .to(document.body, { backgroundColor: LIT, duration: 1.4, ease: 'power2.inOut' }, .5)
+      .to('.op__foot', { opacity: 0, duration: .5, ease: 'power2.out' }, .5)
+      .to(veil, { opacity: 0, duration: 1.2, ease: 'power2.inOut' }, 1.5);
+
+    /* Гэрэл ухрахад гэрийн дотор үлдэнэ. Нийт ~3.4 сек. */
+    tl.to(openEl, { opacity: 0, duration: .85, ease: 'power2.inOut' }, 2.55);
+  }
+
+  function finish(){
+    openEl.hidden = true;
+    unlock();
+  }
+
+  openEl.addEventListener('click', open);
+  openEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
+  });
+
+  function unlock(){
+    document.documentElement.classList.remove('is-locked');
+    document.body.classList.remove('is-locked');
+    if (entered) return;
+    entered = true;
+    scrollTo(0, 0);
+    PAGE.enter(ANIMATED);
+    if (!ANIMATED){ initScroll(); return; }
+    requestAnimationFrame(() => { initScroll(); ScrollTrigger.refresh(); });
+  }
+})();
+</script>
+
+</body>
+</html>
