@@ -8,7 +8,7 @@
 <!-- АНХААР: холбоосын урьдчилсан харагдац JS ажиллуулдаггүй тул эдгээр хоёр
      мөрийг тараахаасаа өмнө ГАРААР бас солино. -->
 <title>Гэр барих · Онгодоо залах</title>
-<meta name="description" content="Гэр барих · Онгодоо залах — 2026.09.18">
+<meta name="description" content="Гэр барих · Онгодоо залах — Дархан хот">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -400,7 +400,7 @@ main{ position: relative; z-index: 1; }
 <script>
 /* ============================================================
    CONFIG — хуудасны БҮХ текст энд.
-   ⟨ ⟩ хаалттай мөрүүд нь дүүргэх ёстой хоосон зай.
+   Одоо ЖИШЭЭ (хаан 10-10): нэр, газар, цаг зохиомол — жинхэнэ урилгад сольж, demo.on:false болго.
    ============================================================ */
 const CONFIG = {
 
@@ -414,14 +414,14 @@ const CONFIG = {
     iso:     '2026-09-18T11:00:00+08:00',
     display: '2026.09.18',
     weekday: 'Баасан гараг',
-    hour:    '⟨цагаа бичнэ үү⟩'
+    hour:    '11:00 цагаас'
   },
 
   venue: {
-    place: '⟨байршлаа бичнэ үү⟩',
+    place: 'Дархан хот',
     note:  '',
     mapsUrl: null,
-    mapsQuery: '',
+    mapsQuery: 'Дархан хот',
     cta: 'Замаа харах'
   },
 
@@ -459,7 +459,7 @@ const CONFIG = {
 
   closing: {
     line:      'Гал голомт бадартугай.',
-    signature: '⟨нэрээ бичнэ үү⟩'
+    signature: 'Төмөрбаатар'
   },
 
   /* Гэрийн дүрслэл */
@@ -469,8 +469,31 @@ const CONFIG = {
     /* Тооно дээд талд. Текст түүний доор амьдарна — гэр дотор сууж
        дээшээ хараад, дараа нь урилга руугаа харж буй өнцөг. */
     cx: 500, cy: 215
-  }
+  },
+
+  /* Жишээ горим. on:true → огноо өнөөдрөөс daysAhead хоногийн дараа, дээд талд «ЖИШЭЭ».
+     ЖИНХЭНЭ урилгад on:false — дээрх date хэвээр ажиллана. */
+  demo: { on: true, daysAhead: 30, label: 'ЖИШЭЭ' }
 };
+
+/* Жишээ огноо (BACKLOG #101-3 — 2026-10-10): жишээ урилга хэзээ ч «өнгөрөхгүй» */
+(function applyDemo(C) {
+  if (!C.demo.on) return;
+  const day = new Date(); day.setDate(day.getDate() + C.demo.daysAhead);
+  const p2 = (n) => String(n).padStart(2, '0');
+  const WD = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
+  C.date.iso     = `${day.getFullYear()}-${p2(day.getMonth() + 1)}-${p2(day.getDate())}T${C.date.iso.slice(11, 16)}:00+08:00`;
+  C.date.display = `${day.getFullYear()}.${p2(day.getMonth() + 1)}.${p2(day.getDate())}`;
+  C.date.weekday = `${WD[day.getDay()]} гараг`;
+  document.addEventListener('DOMContentLoaded', () => {
+    const b = document.createElement('div');
+    b.textContent = C.demo.label;
+    b.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;' +
+      'font:600 11px/1 system-ui,sans-serif;letter-spacing:.22em;padding:6px 12px;border-radius:999px;' +
+      'background:rgba(20,16,14,.7);color:#efe6d6;backdrop-filter:blur(6px)';
+    document.body.appendChild(b);
+  });
+})(CONFIG);
 
 document.title = CONFIG.event.above + ' · ' + CONFIG.event.title;
 const metaDesc = document.querySelector('meta[name="description"]');
