@@ -12,7 +12,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;1,300&family=Onest:wght@300;400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;1,300;1,400&family=Onest:wght@400;500&display=swap">
 
 <style>
 /* ============================================================
@@ -40,7 +40,7 @@
   --t-title: clamp(2.7rem, 14vw, 4.2rem);
   --t-verse: clamp(1.02rem, 4.9vw, 1.25rem);
   --t-body:  .95rem;
-  --t-label: .63rem;
+  --t-label: .75rem;   /* ≥12px — уншигдах (#101-5) */
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -61,7 +61,7 @@ body{
   background: var(--felt);
   color: var(--milk);
   font-family: var(--font-ui);
-  font-weight: 300;
+  font-weight: 400;
   font-size: var(--t-body);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -97,14 +97,14 @@ a{ color: inherit; }
 }
 .title{
   font-family: var(--font-display);
-  font-weight: 200;
+  font-weight: 300;
   font-size: var(--t-title);
   letter-spacing: -.015em;
   line-height: 1;
 }
 .verse{
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--verse-size, var(--t-verse));
   line-height: 1.9;
@@ -206,7 +206,7 @@ main{ position: relative; z-index: 1; }
 
 .hero__when{ margin-top: 46px; display: flex; align-items: center; gap: 16px; }
 .hero__rule{ flex: 1; height: 0; border-top: var(--hair); }
-.hero__date{ margin-top: 16px; font-family: var(--font-display); font-weight: 300; font-size: var(--t-verse); }
+.hero__date{ margin-top: 16px; font-family: var(--font-display); font-weight: 400; font-size: var(--t-verse); }
 .hero__hour{ color: var(--muted); margin-top: 2px; }
 
 /* --- Юу болох вэ --- */
@@ -215,7 +215,7 @@ main{ position: relative; z-index: 1; }
 .about p:first-child{ color: var(--milk); }
 
 /* --- Хэзээ, хаана --- */
-.wh__place{ font-family: var(--font-display); font-weight: 300; font-size: var(--t-verse); }
+.wh__place{ font-family: var(--font-display); font-weight: 400; font-size: var(--t-verse); }
 .wh__note{ color: var(--muted); margin-top: 8px; }
 .wh__cta{
   display: inline-block;
@@ -326,7 +326,7 @@ main{ position: relative; z-index: 1; }
 }
 .op__line{
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   font-size: 1.02rem;
   color: rgba(240,234,224,.75);
