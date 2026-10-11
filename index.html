@@ -9,6 +9,15 @@
      мөрийг тараахаасаа өмнө ГАРААР бас солино. -->
 <title>Гэр барих · Онгодоо залах</title>
 <meta name="description" content="Гэр барих · Онгодоо залах — Дархан хот">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Гэр барих · Онгодоо залах">
+<meta property="og:description" content="Гэр барих · Онгодоо залах — Дархан хот">
+<meta property="og:locale" content="mn_MN">
+<meta property="og:image" content="https://ghostshdee.github.io/urilga-ongodoo-zalah/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Гэр барих · Онгодоо залах. Тооноор орох гэрэл, гэрийн унь (жишээ урилга)">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,6 +290,20 @@ main{ position: relative; z-index: 1; }
 }
 .cl__sign{ display: block; margin-top: 26px; }
 
+/* Кредит. Гал голомтын гэрлийн дээр гарахын тулд z-index */
+.credit{
+  position: relative;
+  z-index: 1;
+  padding-block: 4px 30px;
+  text-align: center;
+  font-size: var(--t-label);   /* ≥12px */
+  letter-spacing: .12em;
+  color: var(--muted);
+  opacity: .6;
+}
+.credit a{ display: inline-block; padding: 8px 12px; text-decoration: none; }
+.credit a:hover, .credit a:focus-visible{ color: var(--ember); }
+
 /* ============================================================
    НЭЭХ ДЭЛГЭЦ — ХАЯЛГА СӨХӨХ
    ============================================================ */
@@ -393,6 +416,10 @@ main{ position: relative; z-index: 1; }
   <hr class="seam">
   <section id="closing" class="section shell"></section>
 </main>
+
+<footer class="credit shell">
+  <a href="https://ghostshdee.github.io/" target="_blank" rel="noopener">Бүтээсэн: DOKAY.</a>
+</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
